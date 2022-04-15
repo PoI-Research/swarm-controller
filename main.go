@@ -6,6 +6,7 @@ import (
 	"crypto/rsa"
 	"crypto/sha256"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"errors"
 	"io/ioutil"
@@ -41,9 +42,9 @@ func signAccount(coinbase string) string {
 	msgHash := sha256.New()
 	msgHash.Write([]byte(coinbase))
 	msgHashSum := msgHash.Sum(nil)
-	signature, _ := rsa.SignPSS(rand.Reader, privateKey, crypto.SHA256, msgHashSum, nil)
+	signature, _ := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, msgHashSum)
 
-	return string(signature)
+	return base64.StdEncoding.EncodeToString(signature)
 }
 
 func generateKeys() *rsa.PrivateKey {
@@ -119,7 +120,7 @@ func getKeys() (string, string) {
 
 func main() {
 	router := gin.Default()
-	router.GET("/publicKey", getPublicKey)
+	router.GET("/getPublicKey", getPublicKey)
 	router.GET("/getSignature/:coinbase", getAccountSignature)
 
 	router.Run(":8080")
