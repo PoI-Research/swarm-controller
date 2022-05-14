@@ -111,11 +111,14 @@ func decodePrivateKey(key string) (*rsa.PrivateKey, error) {
 
 func getKeys() (string, string) {
 	pubKey, privKey := retrieveKeys()
+
 	if pubKey == "" || privKey == "" {
 		saveKeys(generateKeys())
+
+		return retrieveKeys()
 	}
 
-	return retrieveKeys()
+	return pubKey, privKey
 }
 
 func main() {
